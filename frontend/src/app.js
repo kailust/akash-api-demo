@@ -6,15 +6,22 @@ function App() {
   const [response, setResponse] = useState('');
 
   const sendMessage = async () => {
-    const res = await fetch('http://localhost:5000/chat', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ message })
-    });
-    const data = await res.json();
-    setResponse(data);
+    try {
+      const res = await fetch('http://localhost:5001/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ message })
+      });
+      if (!res.ok) {
+        throw new Error('Network response was not ok');
+      }
+      const data = await res.json();
+      setResponse(data);
+    } catch (error) {
+      setResponse({ error: error.message });
+    }
   };
 
   return (
@@ -27,11 +34,10 @@ function App() {
           placeholder="Type your message here..."
         />
         <button onClick={sendMessage}>Send</button>
-        <pre>{response}</pre>
+        <pre>{response.error ? `Error: ${response.error}` : response}</pre>
       </header>
     </div>
   );
 }
 
 export default App;
-
